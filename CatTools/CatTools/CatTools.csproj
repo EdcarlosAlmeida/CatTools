@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthenticateWin.cs" />
+    <Compile Include="Crypt.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
