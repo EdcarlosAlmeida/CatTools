@@ -10,7 +10,6 @@ namespace CatTools
 
         public static bool Authenticate(string SerialNumber)
         {
-            //TODO:
             if(CheckPatnerId())
             {
                 return CheckTrial(CheckSerial());                 
