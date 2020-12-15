@@ -16,7 +16,11 @@ namespace CatTools
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            bool start = AuthenticateWin.Authenticate("123456");
+            if (start)
+            {
+                Application.Run(new Form1());
+            }
         }
     }
 }

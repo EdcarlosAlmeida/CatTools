@@ -1,53 +1,78 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Windows.Forms;
 
 namespace CatTools
 {
     class AuthenticateWin
     {
-        private static readonly string userRoot = "HKEY_CURRENT_USER";
-        private static readonly string subKey = @"SOFTWARE\CatTools\Licenses";
-        private static readonly string keyName = userRoot + "\\" + subKey;
+        const string USERROOT = @"HKEY_CURRENT_USER\SOFTWARE\CatTools\Licenses";
 
-        public static void Authenticate()
+        public static bool Authenticate(string SerialNumber)
         {
             //TODO:
-        }
-
-        private static Boolean CheckSerial()
-        {
-            bool check = false;
-            if (Registry.GetValue(keyName, "Serial", null) == null)
+            if(CheckPatnerId())
             {
-                check = true;
+                return CheckTrial(CheckSerial());                 
             }
-            return check;
+            InsertKeyRegistry(SerialNumber);
+            return true;
         }
 
-        private static Boolean CheckData()
-        {
-            bool check = false;
-            if (Registry.GetValue(keyName, "Date", null) == null)
+        private static bool CheckPatnerId()
+        {            
+            if (Registry.GetValue(USERROOT, "PatnerId", null) == null)
             {
-                check = true;
+                return false;
+            }            
+                return true;
+        }
+
+        private static bool CheckTrial(bool serial)
+        {
+            if (!serial)
+            {
+                var cryptDate = Registry.GetValue(USERROOT, "CurrentStatus", null).ToString();
+                var decryptDate = Criptografia.Decriptar("asddgfthcgdopdftASTFGHQf", "ARSTDGXFTUDOPEHT", cryptDate);
+                return ValidateTrial(decryptDate);
             }
-            return check;
+            return true;
         }
 
-        private static void InsertKeyRegistry()
+        private static bool ValidateTrial(string date)
         {
-            Registry.SetValue(keyName, "Serial", "", RegistryValueKind.String);
-            Registry.SetValue(keyName, "Date", DateTime.Now.ToString("dd-MM-yyyy"), RegistryValueKind.String);
+            if(DateTime.Parse(DateTime.Now.ToString("dd-MM-yyyy")) <= DateTime.Parse(date))
+            {
+                MessageBox.Show("VERSÃO DE AVALIAÇÃO","DEMO",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                return true;
+            }
+            MessageBox.Show("VERSÃO DE AVALIAÇÃO EXPIRADA", "DEMO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return false;
         }
 
-        private static void GetKeyRegistry()
+        private static bool CheckSerial()
         {
-            Console.WriteLine(Registry.GetValue(keyName, "Teste", null));
+            var KeyNumber = Registry.GetValue(USERROOT, "Serial Number", null);
+            if (KeyNumber == null || KeyNumber.ToString() == "")
+            {
+                return false;
+            }
+            return true;
         }
 
-        private static void DelkeyRegistry()
+        private static void InsertKeyRegistry(string SerialNumber)
         {
-            Registry.CurrentUser.DeleteSubKeyTree(@"SOFTWARE\1Eddy");
+            if (SerialNumber != null)
+            {
+                SerialNumber = Criptografia.Encriptar("asddgfthcgdopdftASTFGHQf", "ARSTDGXFTUDOPEHT", SerialNumber);
+            }
+
+            var ExpireDate = DateTime.Now.AddDays(5);
+            var cryptDate = Criptografia.Encriptar("asddgfthcgdopdftASTFGHQf", "ARSTDGXFTUDOPEHT", ExpireDate.ToString("dd-MM-yyyy"));
+
+            Registry.SetValue(USERROOT, "PatnerId", 1, RegistryValueKind.DWord);
+            Registry.SetValue(USERROOT, "Serial Number", SerialNumber, RegistryValueKind.String);
+            Registry.SetValue(USERROOT, "CurrentStatus", cryptDate, RegistryValueKind.String);
         }
     }
 }

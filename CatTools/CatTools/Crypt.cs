@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CatTools
 {
-    public static class CriptografiaHelper
+    public static class Criptografia
     {
         private static Rijndael CriarInstanciaRijndael(string chave, string vetorInicializacao)
         {
